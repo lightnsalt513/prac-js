@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Example : Tree Directory</title>
+<!-- <link rel="stylesheet" href="css/main.css"> -->
+</head>
+<body>
+<div id="wrap">
+	<!-- container -->
+	<div id="container">
+		<div class="cm-tree">
+			<!-- <div id="" class="cm-tree__wrap">
+				<ul class="cm-tree__root">
+					<li class="cm-tree__folder">
+						<div class="cm-tree__content">
+							<button type="button" class="cm-tree-btn">Animal</button>
+						</div>
+						<ul class="cm-tree__folder-children">
+							<li class="cm-tree__folder">
+								<div class="cm-tree__content">
+									<button type="button" class="cm-tree-btn">Mammals</button>
+								</div>
+								<ul class="cm-tree__folder-children">
+									<li class="cm-tree__file">
+										<div class="cm-tree__content">
+											<button type="button" class="cm-tree-btn">Elephant</button>
+										</div>
+									</li>
+									<li class="cm-tree__file">
+										<div class="cm-tree__content">
+											<button type="button" class="cm-tree-btn">Lion</button>
+										</div>
+									</li>
+								</ul>
+							</li>
+							<li class="cm-tree__folder">
+								<div class="cm-tree__content">
+									<button type="button" class="cm-tree-btn">Birds</button>
+								</div>
+								<ul class="cm-tree__folder-children">
+									<li class="cm-tree__file">
+										<div class="cm-tree__content">
+											<button type="button" class="cm-tree-btn">Flamingo</button>
+										</div>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+					<li class="cm-tree__file">
+						<div class="cm-tree__content">
+							<button type="button" class="cm-tree-btn">Unknown</button>
+						</div>
+					</li>
+				</ul>
+			</div> -->
+		</div>
+		<div class="options" style="margin-top:80px">
+			<button type="button" class="cm-tree-delete-btn">선택 아이템 삭제</button>
+		</div>
+	</div>
+</div>
+
+<script src="js/libs/main1.lib1.vendor.smg.jquery-1.11.3.min.js"></script>
+<script src="js/app/main02.vendor00.common.js"></script>
+<script src="js/app/main.js"></script>
+<script>
+// temporary
+$(function () {
+	$('.cm-tree-delete-btn').on('click', function () {
+		$('.cm-tree').trigger('deleteItem');
+	});
+});
+</script>
+</body>
+</html>

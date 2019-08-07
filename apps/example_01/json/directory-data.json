@@ -1,0 +1,94 @@
+{
+   "children": [
+      {
+         "name": "Animal",
+         "id": "node_01",
+         "type": "folder",
+         "children": [
+            {
+               "name": "Mammals",
+               "type": "folder",
+               "children": [
+                  {
+                     "name": "Elephant",
+                     "type": "file"
+                  },
+                  {
+                     "name": "Lion",
+                     "type": "file"
+                  },
+                  {
+                     "name": "Timon",
+                     "type": "file"
+                  }
+               ]
+            },
+            {
+               "name": "Birds",
+               "type": "folder",
+               "children": [
+                  {
+                     "name": "Flamingo",
+                     "type": "file"
+                  },
+                  {
+                     "name": "Zazu",
+                     "type": "file"
+                  }
+               ]
+            }
+         ]
+      },
+      {
+         "name": "small FILE",
+         "type": "file"
+      },
+      {
+         "name": "big FILE",
+         "type": "file"
+      },
+      {
+         "name": "empty Folder",
+         "type": "folder",
+         "children": []
+      },
+      {
+         "name": "Countries",
+         "type": "folder",
+         "children": [
+            {
+               "name": "Asia",
+               "type": "folder",
+               "children": [
+                  {
+                     "name": "Korea",
+                     "type": "file"
+                  },
+                  {
+                     "name": "Vietnam",
+                     "type": "file"
+                  },
+                  {
+                     "name": "China",
+                     "type": "file"
+                  }
+               ]
+            },
+            {
+               "name": "Europ",
+               "type": "folder",
+               "children": [
+                  {
+                     "name": "France",
+                     "type": "file"
+                  },
+                  {
+                     "name": "Croatia",
+                     "type": "file"
+                  }
+               ]
+            }
+         ]
+      }
+   ]
+}
