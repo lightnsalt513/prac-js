@@ -6,60 +6,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Example : Tree Directory</title>
 <!-- <link rel="stylesheet" href="css/main.css"> -->
+<style>
+#container {
+	max-width: 1000px;
+	margin: 0 auto;
+}
+button.is-active {
+    background: lightseagreen;
+}
+</style>
 </head>
 <body>
 <div id="wrap">
 	<!-- container -->
 	<div id="container">
 		<div class="cm-tree">
-			<!-- <div id="" class="cm-tree__wrap">
-				<ul class="cm-tree__root">
-					<li class="cm-tree__folder">
-						<div class="cm-tree__content">
-							<button type="button" class="cm-tree-btn">Animal</button>
-						</div>
-						<ul class="cm-tree__folder-children">
-							<li class="cm-tree__folder">
-								<div class="cm-tree__content">
-									<button type="button" class="cm-tree-btn">Mammals</button>
-								</div>
-								<ul class="cm-tree__folder-children">
-									<li class="cm-tree__file">
-										<div class="cm-tree__content">
-											<button type="button" class="cm-tree-btn">Elephant</button>
-										</div>
-									</li>
-									<li class="cm-tree__file">
-										<div class="cm-tree__content">
-											<button type="button" class="cm-tree-btn">Lion</button>
-										</div>
-									</li>
-								</ul>
-							</li>
-							<li class="cm-tree__folder">
-								<div class="cm-tree__content">
-									<button type="button" class="cm-tree-btn">Birds</button>
-								</div>
-								<ul class="cm-tree__folder-children">
-									<li class="cm-tree__file">
-										<div class="cm-tree__content">
-											<button type="button" class="cm-tree-btn">Flamingo</button>
-										</div>
-									</li>
-								</ul>
-							</li>
-						</ul>
-					</li>
-					<li class="cm-tree__file">
-						<div class="cm-tree__content">
-							<button type="button" class="cm-tree-btn">Unknown</button>
-						</div>
-					</li>
-				</ul>
-			</div> -->
+
 		</div>
 		<div class="options" style="margin-top:80px">
 			<button type="button" class="cm-tree-delete-btn">선택 아이템 삭제</button>
+			<button type="button" class="cm-tree-add-file-above-btn">위에 파일 생성</button>
+			<button type="button" class="cm-tree-add-file-below-btn">아래 파일 생성</button>
+			<button type="button" class="cm-tree-change-name-btn">파일/폴더명 변경</button>
 		</div>
 	</div>
 </div>
@@ -72,6 +40,15 @@
 $(function () {
 	$('.cm-tree-delete-btn').on('click', function () {
 		$('.cm-tree').trigger('deleteItem');
+	});
+	$('.cm-tree-add-file-above-btn').on('click', function () {
+		$('.cm-tree').trigger('addFileAbove');
+	});
+	$('.cm-tree-add-file-below-btn').on('click', function () {
+		$('.cm-tree').trigger('addFileBelow');
+	});
+	$('.cm-tree-change-name-btn').on('click', function () {
+		$('.cm-tree').trigger('changeName');
 	});
 });
 </script>

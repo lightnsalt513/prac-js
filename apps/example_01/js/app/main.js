@@ -21,7 +21,7 @@
             fileElement : '.cm-tree__file',
             contentArea : '.cm-tree__content',
             btn : '.cm-tree-btn',
-            // activeClass : 'is-active',
+            activeClass : 'is-active',
             customEvent : '.' + pluginName + (new Date()).getTime(),
             startCreate : null,
             dataSrc : dataUrl
@@ -33,6 +33,12 @@
     COMPONENT[pluginName].prototype = {
         init : function () {
             this.initAjax();
+            this.initOpts();
+        },
+        initOpts : function () {
+            this.itemCount = 0; // for adding file/folder
+            this.selectedItem = null;
+            this.contentEditing = null;
         },
         initAjax : function () {
             var _this = this;
@@ -41,9 +47,9 @@
                 contentType : 'application/json',
                 dataType : 'json',
                 success : function (result) {
-                    if (!result.children.length) return;
+                    if (!result.data.length) return;
                     _this.createContainer();
-                    _this.createNodes(result.children);
+                    _this.createNodes(result.data);
                     _this.afterAjax();
                 }
             });
@@ -55,8 +61,9 @@
             this.rootElement = this.obj.find(this.opts.rootElement);
         },
         createNodes : function (data) {
+            this.dataArray = data.slice(0); // data cloning
             if (this.opts.startCreate == null) {
-                this.createNodesFunc(this.rootElement, data);
+                this.createNodesFunc(this.rootElement, this.dataArray);
                 this.opts.startCreate = 'started';
             }
         },
@@ -64,15 +71,16 @@
             var tempText = [],
                 targetParentEl = parent;
             for (var i = 0; i < data.length; i++) {
+                this.itemCount++;
                 var isFolder = (data[i]['type'] === 'folder') ? true : false;
                 if (!isFolder) {
-                    tempText.push('<li class="cm-tree__file"><div class="cm-tree__content"><button type="button" class="cm-tree-btn">' + data[i]['name'] + '</button></div></li>');
+                    tempText.push('<li class="cm-tree__file"><div class="cm-tree__content"><button type="button" class="cm-tree-btn" data-item-id="' + data[i]['id'] + '">' + data[i]['name'] + '</button></div></li>');
                     targetParentEl.append(tempText.join(''));
                     tempText = [];
                 } else {
                     var folderEl,
                         childrenWrapEl;
-                    tempText.push('<li class="cm-tree__folder"><div class="cm-tree__content"><button type="button" class="cm-tree-btn">' + data[i]['name'] + '</button></div></li>');
+                    tempText.push('<li class="cm-tree__folder"><div class="cm-tree__content"><button type="button" class="cm-tree-btn" data-item-id="' + data[i]['id'] + '">' + data[i]['name'] + '</button></div></li>');
                     targetParentEl.append(tempText.join(''));
                     folderEl = targetParentEl.children().eq(i);
                     tempText = [];
@@ -90,7 +98,7 @@
         },
         afterAjax : function () {
             this.setElements();
-            this.initOpts();
+            this.bindEvents(false);
             this.bindEvents(true);
         },
         setElements : function () {
@@ -102,9 +110,6 @@
             this.contentArea = this.rootElement.find(this.opts.contentArea);
             this.btn = this.rootElement.find(this.opts.btn);
         },
-        initOpts : function () {
-            this.selectedItem = null;
-        },
         changeEvents : function (event) {
             var events = [],
                 eventNames = event.split(' ');
@@ -115,30 +120,126 @@
         },
         bindEvents : function (type) {
             if (type) {
-                this.btn.on(this.changeEvents('click focus'), $.proxy(this.onClickBtn, this));
+                this.btn.on(this.changeEvents('click'), $.proxy(this.onClickBtn, this));
+                this.obj.on(this.changeEvents('changeName'), $.proxy(this.changeNameFunc, this));
                 this.obj.on(this.changeEvents('deleteItem'), $.proxy(this.deleteItemFunc, this));
-                this.obj.on(this.changeEvents('addItemAbove'), $.proxy(this.addItemAboveFunc, this));
+                this.obj.on(this.changeEvents('addFileAbove'), $.proxy(this.addFileFunc, this));
+                this.obj.on(this.changeEvents('addFileBelow'), $.proxy(this.addFileFunc, this));
             } else {
-                this.btn.off(this.changeEvents('click focus'));
+                this.btn.off(this.changeEvents('click'));
+                this.obj.off(this.changeEvents('changeName'));
                 this.obj.off(this.changeEvents('deleteItem'));
-                this.obj.off(this.changeEvents('addItemAbove'));
+                this.obj.off(this.changeEvents('addFileAbove'));
+                this.obj.off(this.changeEvents('addFileBelow'));
             }
         },
         onClickBtn : function (e) {
             var target = $(e.currentTarget);
+            e.preventDefault();
             if (this.selectedItem != null) {
-                this.selectedItem.css('background', '');
+                this.selectedItem.removeClass(this.opts.activeClass);
             }
-            target.css('background', 'lightblue');
+            target.addClass(this.opts.activeClass);
             this.selectedItem = target;
+        },
+        changeNameFunc : function () {
+            if (this.selectedItem == null) return;
+            var target = this.selectedItem,
+                targetId = target.attr('data-item-id'),
+                targetKey = 'id',
+                _this = this,
+                originalContent,
+                newContent;
+            target[0].contentEditable = true;
+            target.on(this.changeEvents('focus'), function () {
+                originalContent = target.html();
+            });
+            target.on(this.changeEvents('focusout'), function () {
+                newContent = target.html();
+                if (originalContent !== newContent) {
+                    _this.changeNameRecursiveFunc(_this.dataArray, targetKey, targetId, newContent);
+                    console.log(_this.dataArray);
+                }
+                target[0].contentEditable = false;
+            });
+            target.focus();
+        },
+        changeNameRecursiveFunc : function (array, targetKey, targetVal, contentVal) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i][targetKey] === targetVal) {
+                    array[i]['name'] = contentVal;
+                    break; // loop 여기서 끝나도록 다시 개발 필요 (break? return?)
+                } else if (array[i]['children'] !== undefined && array[i]['children'].length > 0) {
+                    this.changeNameRecursiveFunc(array[i].children, targetKey, targetVal, contentVal);
+                }
+            }
         },
         deleteItemFunc : function () {
             if (this.selectedItem == null) return;
+            var target = this.selectedItem, 
+                targetId = target.attr('data-item-id'),
+                targetKey = 'id';
+
+            this.deleteArrRecursiveFunc(this.dataArray, targetKey, targetId);
             this.selectedItem.closest('li').remove();
+            this.afterAjax();
+            console.log(this.dataArray);
         },
-        addItemAboveFunc : function () {
+        deleteArrRecursiveFunc : function (array, targetKey, targetVal) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i][targetKey] === targetVal) {
+                    array.splice(i, 1);
+                    break; // loop 여기서 끝나도록 다시 개발 필요 (break? return?)
+                } else if (array[i]['children'] !== undefined && array[i]['children'].length > 0) {
+                    this.deleteArrRecursiveFunc(array[i].children, targetKey, targetVal);
+                }
+            }
+        },
+        addFileFunc : function (e) {
             if (this.selectedItem == null) return;
-            this.selectedItem.closest('li').before();
+            var baseTarget = this.selectedItem,
+                baseTargetId = baseTarget.attr('data-item-id'),
+                baseTargetKey = 'id',
+                position = (function() {
+                    if (e.type === 'addFileAbove') {
+                        return 'above';
+                    } else if (e.type === 'addFileBelow') {
+                        return'below';
+                    }
+                })(),
+                tempText = [];
+
+            this.itemCount++;
+            this.addFileRecursiveFunc(this.dataArray, baseTargetKey, baseTargetId, position); // above / below
+            tempText.push('<li class="cm-tree__file"><div class="cm-tree__content"><button type="button" class="cm-tree-btn" data-item-id="item_' + this.itemCount + '">' + 'NEW FILE' + '</button></div></li>');
+            if (position === 'above') {
+                this.selectedItem.closest('li').before(tempText.join(''));
+            } else if (position === 'below') {
+                this.selectedItem.closest('li').after(tempText.join(''));
+            }
+            this.afterAjax();
+            console.log(this.dataArray);
+        },
+        addFileRecursiveFunc : function (array, targetKey, targetVal, position) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i][targetKey] === targetVal) {
+                    var newItem = {
+                        "name" : "NEW FILE",
+                        "id" : "item_" + this.itemCount,
+                        "type" : "file"
+                    };
+                    if (position === 'above') {
+                        array.splice(i, 0, newItem);
+                    } else if (position === 'below') {
+                        array.splice(i+1, 0, newItem);
+                    }
+                    return; // loop 여기서 끝나도록 다시 개발 필요 (break? return?)
+                } else {
+                    if (array[i]['children'] !== undefined && array[i]['children'].length > 0) {
+                        this.addFileRecursiveFunc(array[i].children, targetKey, targetVal, position);
+                    }
+                }
+            }
         }
     };
 

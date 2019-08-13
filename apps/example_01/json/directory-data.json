@@ -1,38 +1,45 @@
 {
-   "children": [
+   "data": [
       {
          "name": "Animal",
-         "id": "node_01",
+         "id": "item_1",
          "type": "folder",
          "children": [
             {
                "name": "Mammals",
+               "id": "item_2",
                "type": "folder",
                "children": [
                   {
                      "name": "Elephant",
+                     "id": "item_3",
                      "type": "file"
                   },
                   {
                      "name": "Lion",
+                     "id": "item_4",
                      "type": "file"
                   },
                   {
                      "name": "Timon",
+                     "id": "item_5",
                      "type": "file"
                   }
                ]
             },
             {
                "name": "Birds",
+               "id": "item_6",
                "type": "folder",
                "children": [
                   {
                      "name": "Flamingo",
+                     "id": "item_7",
                      "type": "file"
                   },
                   {
                      "name": "Zazu",
+                     "id": "item_8",
                      "type": "file"
                   }
                ]
@@ -41,49 +48,60 @@
       },
       {
          "name": "small FILE",
+         "id": "item_9",
          "type": "file"
       },
       {
          "name": "big FILE",
+         "id": "item_10",
          "type": "file"
       },
       {
          "name": "empty Folder",
+         "id": "item_11",
          "type": "folder",
          "children": []
       },
       {
          "name": "Countries",
+         "id": "item_12",
          "type": "folder",
          "children": [
             {
                "name": "Asia",
+               "id": "item_13",
                "type": "folder",
                "children": [
                   {
                      "name": "Korea",
+                     "id": "item_14",
                      "type": "file"
                   },
                   {
                      "name": "Vietnam",
+                     "id": "item_15",
                      "type": "file"
                   },
                   {
                      "name": "China",
+                     "id": "item_16",
                      "type": "file"
                   }
                ]
             },
             {
                "name": "Europ",
+               "id": "item_17",
                "type": "folder",
                "children": [
                   {
                      "name": "France",
+                     "id": "item_18",
                      "type": "file"
                   },
                   {
                      "name": "Croatia",
+                     "id": "item_19",
                      "type": "file"
                   }
                ]
