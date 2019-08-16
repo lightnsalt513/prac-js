@@ -11,6 +11,8 @@
 	max-width: 1000px;
 	margin: 0 auto;
 }
+h1{font-size:28px}
+h2{margin:0 0 10px 0}
 button.is-active {
     background: lightseagreen;
 }
@@ -20,15 +22,17 @@ button.is-active {
 <div id="wrap">
 	<!-- container -->
 	<div id="container">
-		<div class="cm-tree">
-
-		</div>
-		<div class="options" style="margin-top:80px">
+		<h1>Tree Directory UI</h1>
+		<div class="options" style="margin-bottom:50px;padding:20px;border:1px solid gray">
+			<h2>Options : </h2>
 			<button type="button" class="cm-tree-delete-btn">선택 아이템 삭제</button>
 			<button type="button" class="cm-tree-add-file-above-btn">위에 [파일] 생성</button>
 			<button type="button" class="cm-tree-add-folder-above-btn">위에 [폴더] 생성</button>
 			<!-- <button type="button" class="cm-tree-add-file-below-btn">아래 파일 생성</button> -->
 			<button type="button" class="cm-tree-change-name-btn">파일/폴더명 변경</button>
+		</div>
+		<div class="cm-tree">
+
 		</div>
 	</div>
 </div>
