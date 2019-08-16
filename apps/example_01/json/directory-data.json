@@ -2,94 +2,74 @@
    "data": [
       {
          "name": "Animal",
-         "id": "item_1",
          "children": [
             {
                "name": "Mammals",
-               "id": "item_2",
                "children": [
                   {
                      "name": "Elephant",
-                     "id": "item_3",
                      "children": [
                         {
-                           "name": "baby elephant",
-                           "id": "item_3"
+                           "name": "baby elephant"
                         }
                      ]
                   },
                   {
-                     "name": "Lion",
-                     "id": "item_4"
+                     "name": "Lion"
                   },
                   {
-                     "name": "Timon",
-                     "id": "item_5"
+                     "name": "Timon"
                   }
                ]
             },
             {
                "name": "Birds",
-               "id": "item_6",
                "children": [
                   {
-                     "name": "Flamingo",
-                     "id": "item_7"
+                     "name": "Flamingo"
                   },
                   {
-                     "name": "Zazu",
-                     "id": "item_8"
+                     "name": "Zazu"
                   }
                ]
             }
          ]
       },
       {
-         "name": "small FILE",
-         "id": "item_9"
+         "name": "small FILE"
       },
       {
-         "name": "big FILE",
-         "id": "item_10"
+         "name": "big FILE"
       },
       {
          "name": "empty Folder",
-         "id": "item_11",
          "children": []
       },
       {
          "name": "Countries",
-         "id": "item_12",
          "children": [
             {
                "name": "Asia",
-               "id": "item_13",
                "children": [
                   {
-                     "name": "Korea",
-                     "id": "item_14"
+                     "name": "Korea"
                   },
                   {
-                     "name": "Vietnam",
-                     "id": "item_15"
+                     "name": "Vietnam"
                   },
                   {
-                     "name": "China",
-                     "id": "item_16"
+                     "name": "China"
                   }
                ]
             },
             {
                "name": "Europ",
-               "id": "item_17",
                "children": [
                   {
-                     "name": "France",
-                     "id": "item_18"
+                     "name": "France"
                   },
                   {
-                     "name": "Croatia",
-                     "id": "item_19"
+                     "name": "Croatia"
                   }
                ]
             }

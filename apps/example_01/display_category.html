@@ -25,8 +25,9 @@ button.is-active {
 		</div>
 		<div class="options" style="margin-top:80px">
 			<button type="button" class="cm-tree-delete-btn">선택 아이템 삭제</button>
-			<button type="button" class="cm-tree-add-file-above-btn">위에 파일 생성</button>
-			<button type="button" class="cm-tree-add-file-below-btn">아래 파일 생성</button>
+			<button type="button" class="cm-tree-add-file-above-btn">위에 [파일] 생성</button>
+			<button type="button" class="cm-tree-add-folder-above-btn">위에 [폴더] 생성</button>
+			<!-- <button type="button" class="cm-tree-add-file-below-btn">아래 파일 생성</button> -->
 			<button type="button" class="cm-tree-change-name-btn">파일/폴더명 변경</button>
 		</div>
 	</div>
@@ -44,9 +45,12 @@ $(function () {
 	$('.cm-tree-add-file-above-btn').on('click', function () {
 		$('.cm-tree').trigger('addFileAbove');
 	});
-	$('.cm-tree-add-file-below-btn').on('click', function () {
-		$('.cm-tree').trigger('addFileBelow');
+	$('.cm-tree-add-folder-above-btn').on('click', function () {
+		$('.cm-tree').trigger('addFolderAbove');
 	});
+	// $('.cm-tree-add-file-below-btn').on('click', function () {
+	// 	$('.cm-tree').trigger('addFileBelow');
+	// });
 	$('.cm-tree-change-name-btn').on('click', function () {
 		$('.cm-tree').trigger('changeName');
 	});
