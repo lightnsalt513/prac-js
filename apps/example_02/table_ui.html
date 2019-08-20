@@ -5,13 +5,41 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Example : Table UI</title>
-<!-- <link rel="stylesheet" href="css/main.css"> -->
+<link rel="stylesheet" href="css/main.css">
 <style>
 #container {
-	max-width: 1000px;
+	max-width: 800px;
 	margin: 0 auto;
 }
+h1{font-size:28px;margin:50px 0 20px}
+h2{margin:0 0 10px 0}
+.cm-table-ui table {
+	width: 100%;
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+.cm-table-ui td, .cm-table-ui th {
+	padding: 4px 8px;
+	border: 1px solid black;
+}
+.cm-table-ui__btn-sort {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	margin-left: 6px;
+	font-size: 10px;
+}
+.cm-table-ui__btn-sort.is-ascend {
+	background: green;
+}
+.cm-table-ui__btn-sort.is-descend {
+	background: yellow;
+}
+.cm-table-ui__search {
+	margin-bottom: 20px;
+}
 </style>
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
 </head>
 <body>
 <div id="wrap">
@@ -19,7 +47,23 @@
 	<div id="container">
 		<h1>Table UI</h1>
 		<div class="cm-table-ui">
-
+			<div class="cm-table-ui__search">
+				<label for="searchInput">Search : </label>
+				<input id="searchInput" class="cm-table-ui__searh-input" type="text" placeholder="Type search text...">
+				<button class="cm-table-ui__searh-btn" type="button">Search</button>
+			</div>
+			<!-- <table>
+				<tr>
+					<th>Heading 1</th>
+					<th>Heading 2</th>
+					<th>Heading 3</th>
+				</tr>
+				<tr>
+					<td>Data 1</td>
+					<td>Data 2</td>
+					<td>Data 3</td>
+				</tr>
+			</table> -->
 		</div>
 	</div>
 </div>

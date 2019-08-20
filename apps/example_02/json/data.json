@@ -1,6 +1,6 @@
 [
     {
-      "_id": "5d567c3bbb23debb49ab3ec4",
+      "_id": "id_01",
       "index": 0,
       "isOnSale": true,
       "discount": 40,
@@ -13,7 +13,7 @@
       "countryOrign": "Korea"
     },
     {
-      "_id": "5d567c3b90a835b1a27fdb34",
+      "_id": "id_02",
       "index": 1,
       "isOnSale": true,
       "discount": 28,
@@ -26,7 +26,7 @@
       "countryOrign": "India"
     },
     {
-      "_id": "5d567c3b8cd05764f7400ef6",
+      "_id": "id_03",
       "index": 2,
       "isOnSale": true,
       "discount": 15,
@@ -39,7 +39,7 @@
       "countryOrign": "France"
     },
     {
-      "_id": "5d567c3b5eb643a7e7a935c8",
+      "_id": "id_04",
       "index": 3,
       "isOnSale": true,
       "discount": 33,
@@ -52,7 +52,7 @@
       "countryOrign": "France"
     },
     {
-      "_id": "5d567c3b1808c96311ee2f58",
+      "_id": "id_05",
       "index": 4,
       "isOnSale": true,
       "discount": 5,
@@ -65,7 +65,7 @@
       "countryOrign": "England"
     },
     {
-      "_id": "5d567c3b266300138e1ac9a7",
+      "_id": "id_06",
       "index": 5,
       "isOnSale": true,
       "discount": 45,
@@ -78,7 +78,7 @@
       "countryOrign": "England"
     },
     {
-      "_id": "5d567c3b2b4ff1716bf74308",
+      "_id": "id_07",
       "index": 6,
       "isOnSale": false,
       "discount": 0,
@@ -91,7 +91,7 @@
       "countryOrign": "France"
     },
     {
-      "_id": "5d567c3b0f07b5a927c3aef0",
+      "_id": "id_08",
       "index": 7,
       "isOnSale": true,
       "discount": 12,

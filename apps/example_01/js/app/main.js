@@ -140,7 +140,7 @@
                 targetLevelArray = targetData.split('_'),
                 finalIndex = targetLevelArray.pop(),
                 targetArr = this.dataArray;
-            for (var i = 0; i < targetLevelArray.length; i++) {
+            for (var i = 0, max = targetLevelArray.length; i < max; i++) {
                 var index = targetLevelArray[i];
                 targetArr = targetArr[index].children;                
             };
