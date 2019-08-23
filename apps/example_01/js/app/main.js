@@ -15,16 +15,16 @@
         var defParams = {
             container : container || '.cm-tree',
             rootElement : '.cm-tree__root',
-            folderElement : '.cm-tree__folder',
-            folderChildrenWrap : '.cm-tree__folder-children',
-            folderChildren : '> li',
-            fileElement : '.cm-tree__file',
+            listItems : '> li',
             contentArea : '.cm-tree__content',
-            btn : '.cm-tree-btn',
+            nameArea : '.cm-tree__name',
+            foldBtn : '.cm-tree-fold-btn',
             activeClass : 'is-active',
+            collapseClass : 'is-collapse',
+            dragOverClass : 'is-over',
             customEvent : '.' + pluginName + (new Date()).getTime(),
             startCreate : null,
-            dataSrc : dataUrl
+            dataSrc : null
         };
         this.opts = UTIL.def(defParams, (args || {}));
         if (!(this.obj = $(this.opts.container)).length) return;
@@ -37,7 +37,6 @@
         },
         initOpts : function () {
             this.selectedItem = null;
-            this.contentEditing = null;
         },
         initAjax : function () {
             var _this = this;
@@ -67,8 +66,12 @@
                 var data = datas[i],
                     isChildrenType = data.hasOwnProperty('children'),
                     childrenTypeClass = (isChildrenType) ? 'cm-tree__folder' : 'cm-tree__file';
-                aHtml.push('<li class="' + childrenTypeClass + '">');
-                aHtml.push('<div class="cm-tree__content"><button type="button" class="cm-tree-btn">' + data['name'] + '</button></div>');
+                aHtml.push('<li class="' + childrenTypeClass + '" draggable="true">');
+                aHtml.push('<div class="cm-tree__content" tabindex="0">');
+                if (isChildrenType && data['children'].length) {
+                    aHtml.push('<button class="cm-tree-fold-btn" type="button"><span class="blind">Collapse</span></button>');
+                }
+                aHtml.push('<span class="cm-tree__name">' + data['name'] + '</span></div>')
                 if (isChildrenType && data['children'].length) {
                     aHtml.push('<ul class="cm-tree__folder-children">');
                     this.createNodesFunc(aHtml, data['children']);
@@ -86,12 +89,9 @@
         },
         setElements : function () {
             this.rootElement = this.obj.find(this.opts.rootElement);
-            this.folderElement = this.rootElement.find(this.opts.folderElement);
-            this.folderChildrenWrap = this.folderElement.find(this.opts.folderChildrenWrap);
-            this.folderChildren = this.folderChildrenWrap.find(this.opts.folderChildren);
-            this.fileElement = this.rootElement.find(this.opts.fileElement);
-            this.contentArea = this.rootElement.find(this.opts.contentArea);
-            this.btn = this.rootElement.find(this.opts.btn);
+            this.listItems = this.obj.find('ul' + this.opts.listItems);
+            this.contentArea = this.listItems.find(this.opts.contentArea);
+            this.foldBtn = this.listItems.find(this.opts.foldBtn);
         },
         controlDataNum : function (elements, parentLevel) {
             for (var i = 0, max = elements.length; i < max; i++) {
@@ -114,25 +114,54 @@
         },
         bindEvents : function (type) {
             if (type) {
-                this.btn.on(this.changeEvents('click'), $.proxy(this.onClickBtn, this));
+                this.contentArea.on(this.changeEvents('click keydown'), $.proxy(this.onClickItem, this));
+                this.foldBtn.on(this.changeEvents('click'), $.proxy(this.onClickFold, this));
                 this.obj.on(this.changeEvents('changeName'), $.proxy(this.changeNameFunc, this));
                 this.obj.on(this.changeEvents('deleteItem'), $.proxy(this.deleteItemFunc, this));
                 this.obj.on(this.changeEvents('addFileAbove addFileBelow addFolderAbove addFolderBelow'), $.proxy(this.addElementFunc, this));
+                this.listItems.on(this.changeEvents('dragstart'), $.proxy(this.dragStartFunc, this));
+                this.listItems.on(this.changeEvents('dragover'), $.proxy(this.dragOverFunc, this));
+                this.listItems.on(this.changeEvents('dragleave'), $.proxy(this.dragLeaveFunc, this));
+                this.listItems.on(this.changeEvents('drop'), $.proxy(this.dropFunc, this));
             } else {
-                this.btn.off(this.changeEvents('click'));
+                this.contentArea.off(this.changeEvents('click keydown'));
+                this.foldBtn.off(this.changeEvents('click'));
                 this.obj.off(this.changeEvents('changeName'));
                 this.obj.off(this.changeEvents('deleteItem'));
                 this.obj.off(this.changeEvents('addFileAbove addFileBelow addFolderAbove addFolderBelow'));
+                this.listItems.off(this.changeEvents('dragstart'));
+                this.listItems.off(this.changeEvents('dragover'));
+                this.listItems.off(this.changeEvents('dragleave'));
+                this.listItems.off(this.changeEvents('drop'));
             }
         },
-        onClickBtn : function (e) {
+        onClickItem : function (e) {
             var target = $(e.currentTarget);
-            e.preventDefault();
-            if (this.selectedItem != null) {
-                this.selectedItem.removeClass(this.opts.activeClass);
+            if (e.type === 'keydown') {
+                if (e.keyCode === 13) {
+                    target.trigger('click');
+                }
+            } else if (e.type === 'click') {
+                if (this.selectedItem != null) {
+                    this.selectedItem.removeClass(this.opts.activeClass);
+                }
+                target.addClass(this.opts.activeClass);
+                this.selectedItem = target;
             }
-            target.addClass(this.opts.activeClass);
-            this.selectedItem = target;
+        },
+        onClickFold : function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var target = $(e.currentTarget),
+                targetChildren = target.closest('li').children('ul'),
+                isCollapse = (target.hasClass(this.opts.collapseClass)) ? true : false;
+            if (isCollapse) {
+                target.removeClass(this.opts.collapseClass);
+                targetChildren.show();
+            } else {
+                target.addClass(this.opts.collapseClass);
+                targetChildren.hide();
+            }
         },
         findTargetArrayFunc : function (type) {
             var target = this.selectedItem.closest('li'), 
@@ -169,17 +198,19 @@
                 finalIndex = this.findTargetArrayFunc('targetIndex');
             if (e.type === 'addFileAbove' || e.type === 'addFolderAbove') {
                 targetArr.splice(finalIndex, 0, newContent);
-                this.selectedItem.closest('li').before(newLayout.join(''));
+                var newNode = this.selectedItem.closest('li').before(newLayout.join('')).prev();
             } else if (e.type === 'addFileBelow' || e.type === 'addFolderBelow') {
                 targetArr.splice(finalIndex - 1, 0, newContent);
-                this.selectedItem.closest('li').after(newLayout.join(''));
+                var newNode = this.selectedItem.closest('li').after(newLayout.join('').next());
             }
             this.afterAjax();
+            newNode.find(this.opts.contentArea).trigger(this.changeEvents('click'));
+            this.obj.trigger(this.changeEvents('changeName'));
             console.log(this.dataArray);
         },
         changeNameFunc : function () {
             if (this.selectedItem == null) return;
-            var target = this.selectedItem,
+            var target = this.selectedItem.find(this.opts.nameArea),
                 targetArr = this.findTargetArrayFunc('array'),
                 finalIndex = this.findTargetArrayFunc('targetIndex'),
                 originalContent = '';
@@ -187,19 +218,58 @@
             target.on(this.changeEvents('focus'), function () {
                 originalContent = target.html();
             });
-            target.on(this.changeEvents('focusout'), function () {
+            target.on(this.changeEvents('focusout keydown'), function (e) {
                 var newContent = target.html();
-                if (originalContent !== newContent) {
-                    targetArr[finalIndex]['name'] = newContent;
+                if (e.type === 'keydown' && e.keyCode === 13) {
+                    target.trigger('focusout');
+                } else if (e.type === 'focusout') {
+                    if (originalContent !== newContent) {
+                        if (newContent === '') {
+                            alert('File/folder name cannot be empty!');
+                            target.html(originalContent);
+                        } else {
+                            targetArr[finalIndex]['name'] = newContent;
+                        }
+                    }
+                    console.log(targetArr);            
+                    target[0].contentEditable = false;
                 }
-                console.log(targetArr);            
-                target[0].contentEditable = false;
             });
             target.focus();
+        },
+        dragStartFunc : function (e) {
+            e.stopPropagation();
+            var event = e.originalEvent;
+            this.dragSrcEl = e.target;
+            event.dataTransfer.setData('text/html', e.target.outerHTML);
+            event.dataTransfer.effectAllowed = "move";
+        },
+        dragOverFunc : function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.currentTarget.classList.add('is-over');
+            e.originalEvent.dataTransfer.dropEffect = 'move';
+        },
+        dragLeaveFunc : function (e) {
+            e.stopPropagation();
+            e.currentTarget.classList.remove('is-over');
+        },
+        dropFunc : function (e) {
+            e.stopPropagation();
+            if (this.dragSrcEl != e.currentTarget) {
+                var dropHTML = e.originalEvent.dataTransfer.getData('text/html');
+                $(this.dragSrcEl).remove();
+                e.currentTarget.insertAdjacentHTML('beforebegin', dropHTML);
+                
+                this.afterAjax();
+            }
+            e.currentTarget.classList.remove('is-over');
         }
     };
 
     $(function () {
-        var testing = new COMPONENT[pluginName];
+        var sampleUi = new COMPONENT[pluginName](undefined, {
+            dataSrc : dataUrl
+        });
     });
 })(window, window.document, window.jQuery);

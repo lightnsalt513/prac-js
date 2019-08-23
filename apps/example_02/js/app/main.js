@@ -24,14 +24,12 @@
             searchArea : '.cm-table-ui__search',
             searchInput : '.cm-table-ui__search-input',
             searchBtn : '.cm-table-ui__search-btn',
+            searchResetBtn : '.cm-table-ui__search-reset-btn',
             customEvent : '.' + pluginName + (new Date()).getTime(),
             requiredField : {
                 '_id' : 'ID',
                 'productName' : 'Product Name',
-                'company' : 'Company Name',
-                'countryOrigin' : 'Country of Origin',
-                'inventory' : 'Inventory',
-                'price' : 'Unit Price'
+                'company' : 'Company Name'
             },
             dataSrc : dataUrl
         };
@@ -46,6 +44,8 @@
         },
         initOpts : function () {
             this.dataObj = [];
+            this.startedSearch = false;
+            this.colSpan = null;
         },
         initAjax : function () {
             var _this = this;
@@ -64,7 +64,8 @@
         },
         filterDataFunc : function (data, requiredField) {
             var cloneData = data.slice(0),
-                filteredData = [];
+                filteredData = [],
+                colSpan = 0;
             for (var i = 0, max = cloneData.length; i < max; i++) {
                 var obj = cloneData[i];
                 filteredData.push({});
@@ -75,12 +76,12 @@
                     }
                 }
             }
-            this.dataObj = filteredData;
+            this.dataObj = filteredData,
+            this.colSpan = Object.keys(requiredField).length; // IE9 부터 지원
         },
         drawTableFunc : function () {
-            var initLayout = [],
-                startedLoop = null;
-            initLayout.push('<table><tr>');
+            var initLayout = [];
+            initLayout.push('<table><tbody><tr>');
             for (var prop in this.dataObj[0]) {
                 initLayout.push('<th>');
                 initLayout.push('' + prop);
@@ -98,7 +99,7 @@
                 }
                 initLayout.push('</tr>');
             }
-            initLayout.push('</table>');
+            initLayout.push('</tbody></table>');
             this.obj.append(initLayout.join(''));
         },
         afterAjax : function () {
@@ -114,6 +115,7 @@
             this.searchArea = this.obj.find(this.opts.searchArea);
             this.searchInput = this.searchArea.find(this.opts.searchInput);
             this.searchBtn = this.searchArea.find(this.opts.searchBtn);
+            this.searchResetBtn = this.searchArea.find(this.opts.searchResetBtn);
         },
         changeEvents : function (event) {
             var events = [],
@@ -126,10 +128,12 @@
         bindEvents : function (type) {
             if (type) {
                 this.sortBtn.on(this.changeEvents('click'), $.proxy(this.sortFunc, this));
-                this.searchInput.on(this.changeEvents('change'), $.proxy(this.searchFunc, this));
+                this.searchBtn.on(this.changeEvents('click'), $.proxy(this.searchFunc, this));
+                this.obj.on(this.changeEvents('searchReset'), $.proxy(this.searchResetFunc, this));
             } else {
                 this.sortBtn.off(this.changeEvents('click'));
-                this.searchInput.off(this.changeEvents('change'));
+                this.searchBtn.off(this.changeEvents('click'));
+                this.obj.off(this.changeEvents('searchReset'));
             }
         },
         sortFunc : function (e) {
@@ -140,16 +144,14 @@
                 switching = true,
                 sortType = null,
                 rows, i, iMax;
-            if (targetAnchor.hasClass(this.opts.ascendClass) || targetAnchor.hasClass(this.opts.descendClass)) {
-                if (targetAnchor.hasClass(this.opts.descendClass)) {
-                    targetAnchor.removeClass(this.opts.descendClass);
-                    targetAnchor.addClass(this.opts.ascendClass);
-                    sortType = 'ascend';
-                } else {
-                    targetAnchor.removeClass(this.opts.ascendClass);
-                    targetAnchor.addClass(this.opts.descendClass);
-                    sortType = 'descend';
-                }
+            if (targetAnchor.hasClass(this.opts.ascendClass)) {
+                targetAnchor.removeClass(this.opts.ascendClass);
+                targetAnchor.addClass(this.opts.descendClass);
+                sortType = 'descend';
+            } else if (targetAnchor.hasClass(this.opts.descendClass)) { 
+                targetAnchor.removeClass(this.opts.descendClass);
+                targetAnchor.addClass(this.opts.ascendClass);
+                sortType = 'ascend';
             } else {
                 targetItems.find(this.opts.sortBtn).removeClass(this.opts.descendClass + ' ' + this.opts.ascendClass);                
                 targetAnchor.addClass(this.opts.descendClass);
@@ -170,11 +172,55 @@
             }
         },
         searchFunc : function () {
-            console.log(2);
+            var targetInput = this.searchInput, 
+                searchVal = targetInput.val().toLowerCase(),
+                rows = this.rowElem,
+                matchingRow = 0;
+            if (!targetInput.val().length) {
+                if (!this.startedSearch) return;
+                this.startedSearch = false;
+                this.tableElem.find('tr.no-result').remove();
+            } else {
+                this.startedSearch = true;
+                this.tableElem.find('tr.no-result').remove();
+                for (var i = 1, iMax = rows.length; i < iMax; i++) {
+                    var tds = rows[i].childNodes;
+                    for (var j = 0, jMax = tds.length; j < jMax; j++) {
+                        var tdText = tds[j].innerText;
+                        if (tdText.toLowerCase().indexOf(searchVal) > -1) {
+                            rows[i].style.display = '';
+                            matchingRow++;
+                            break;
+                        } else {
+                            rows[i].style.display = 'none';
+                        }
+                    }
+                }
+                if (matchingRow === 0) {
+                    var messageLayout = '<tr class="no-result"><td style="text-align:center" colspan="' + this.colSpan + '">No Search Results</td></tr>'
+                    this.tableElem.find('tbody').append(messageLayout);
+                }
+            }
+        },
+        searchResetFunc : function () {
+            // if (!this.startedSearch && !this.searchInput.val().length) return;
+            this.startedSearch = false;
+            this.searchInput.val('');
+            this.tableElem.find('tr.no-result').remove();
+            this.rowElem.show();
         }
     };
 
     $(function () {
-        var testing = new COMPONENT[pluginName];
+        var sample = new COMPONENT[pluginName](undefined, {
+            requiredField : {
+                '_id' : 'ID',
+                'productName' : 'Product Name',
+                'company' : 'Company Name',
+                'countryOrigin' : 'Country of Origin',
+                'inventory' : 'Inventory',
+                'price' : 'Unit Price'
+            }
+        });
     });
 })(window, window.document, window.jQuery);

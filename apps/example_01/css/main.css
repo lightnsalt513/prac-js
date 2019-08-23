@@ -13,12 +13,19 @@ body {
 	overflow: auto;
     color: #000;
 }
+ul, ol {
+    list-style: none;
+}
 img, form, fieldset, svg {
     border: 0;
     vertical-align: top;
 }
 input, button, select {
+    background: none;
+    border: 0;
     border-radius: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     appearance: none;
 }
 .blind, legend {
@@ -31,3 +38,27 @@ input, button, select {
     font-size: 1px; 
     color: transparent;
 }
+
+/* component css */
+.cm-tree__content{position:relative;padding-left:3rem;height:24px;line-height:24px;font-size:14px}
+.cm-tree__folder .cm-tree__content:before{position:absolute;top:4px;width:14px;height:14px;margin-left:-20px;background:url('../imgs/ico-folder.png') no-repeat 0 0;background-size:100% auto;content:''}
+.cm-tree__file .cm-tree__content:before{position:absolute;top:4px;width:14px;height:14px;margin-left:-20px;background:url('../imgs/ico-file.png') no-repeat 0 0;background-size:100% auto;content:''}
+.cm-tree__root{font-size:} li {
+    position:relative;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    /* Required to make elements draggable in old WebKit */
+    -khtml-user-drag: element;
+    -webkit-user-drag: element;
+}
+.cm-tree__root li[data-level*="_"] .cm-tree__content {padding-left:5rem}
+.cm-tree__root li[data-level*="_"] li[data-level*="_"] .cm-tree__content {padding-left:6.5rem}
+.cm-tree__root li[data-level*="_"] li[data-level*="_"] li[data-level*="_"] .cm-tree__content {padding-left:8rem}
+.cm-tree__root li.is-over:before{position:absolute;top:0;left:0;right:0;border-top: 1px dashed black;content:''}
+.cm-tree__content:hover,.cm-tree__content:focus,.cm-tree__content:active{background:#efefef;cursor:pointer}
+.cm-tree__content.is-active {background: rgb(124, 221, 216);}
+.cm-tree__name{display:block}
+.cm-tree-fold-btn{position:absolute;top:4px;margin-left:-40px;width:14px;height:14px;background:url('../imgs/ico-arrow-down.png') no-repeat 0 0;background-size:100% auto;cursor:pointer}
+.cm-tree-fold-btn.is-collapse{transform:rotate(-90deg)}
