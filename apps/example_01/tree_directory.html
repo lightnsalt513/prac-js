@@ -7,12 +7,12 @@
 <title>Example : Tree Directory</title>
 <link rel="stylesheet" href="css/main.css">
 <style>
-#container {max-width: 600px;margin: 0 auto;}
+#container {max-width: 640px;margin: 0 auto;}
 h1{margin-top:30px;font-size:28px}
 h2{margin:16px 0 10px}
 .options{margin:20px 0 40px;padding:10px 20px;border:1px solid gray}
 .options h2:first-child{margin-top:0}
-.options button{display: inline-block;padding:4px 8px;margin-left:8px;background:#efefef;border:1px solid black;cursor:pointer}
+.options button{display: inline-block;padding:4px 6px;margin:4px 0 0 4px;background:#efefef;border:1px solid black;cursor:pointer}
 .options button:hover,.options button:focus,.options button:active{background:black;color:white;}
 </style>
 </head>
@@ -24,16 +24,19 @@ h2{margin:16px 0 10px}
 		<div class="options">
 			<h2>Features : </h2>
 			<ul>
-			<li>- 파일 / 폴더 위에 생성</li>
-			<li>- 파일 / 폴더 삭제</li>
-			<li>- 파일명 / 폴더명 변경 (텍스트 없을 시 alert)</li>
+			<li>- 파일/폴더 위에 생성</li>
+			<li>- 폴더 내부에 파일/폴더 생성</li>
+			<li>- 파일/폴더 삭제</li>
+			<li>- 파일명/폴더명 변경 (텍스트 없을 시 alert)</li>
 			<li>- 폴더 expand/collapse</li>
-			<li>- 파일 / 폴더 Drag and Drop</li>
+			<li>- 파일/폴더 Drag and Drop</li>
 			</ul>
 			<h2>Control : </h2>
 			<button type="button" class="cm-tree-delete-btn">선택 아이템 삭제</button>
 			<button type="button" class="cm-tree-add-file-above-btn">위에 [파일] 생성</button>
 			<button type="button" class="cm-tree-add-folder-above-btn">위에 [폴더] 생성</button>
+			<button type="button" class="cm-tree-add-file-within-btn">폴더 내부에 [파일] 생성</button>
+			<button type="button" class="cm-tree-add-folder-within-btn">폴더 내부에 [폴더] 생성</button>
 			<!-- <button type="button" class="cm-tree-add-file-below-btn">아래 [파일] 생성</button> -->
 			<button type="button" class="cm-tree-change-name-btn">파일/폴더명 변경</button>
 		</div>
@@ -58,9 +61,15 @@ $(function () {
 	$('.cm-tree-add-folder-above-btn').on('click', function () {
 		$('.cm-tree').trigger('addFolderAbove');
 	});
-	$('.cm-tree-add-file-below-btn').on('click', function () {
-		$('.cm-tree').trigger('addFileBelow');
+	$('.cm-tree-add-file-within-btn').on('click', function () {
+		$('.cm-tree').trigger('addFileWithin');
 	});
+	$('.cm-tree-add-folder-within-btn').on('click', function () {
+		$('.cm-tree').trigger('addFolderWithin');
+	});
+	// $('.cm-tree-add-file-below-btn').on('click', function () {
+	// 	$('.cm-tree').trigger('addFileBelow');
+	// });
 	$('.cm-tree-change-name-btn').on('click', function () {
 		$('.cm-tree').trigger('changeName');
 	});

@@ -19,6 +19,8 @@
             contentArea : '.cm-tree__content',
             nameArea : '.cm-tree__name',
             foldBtn : '.cm-tree-fold-btn',
+            folderClass : 'cm-tree__folder',
+            fileClass : 'cm-tree__file',
             activeClass : 'is-active',
             collapseClass : 'is-collapse',
             dragOverClass : 'is-over',
@@ -69,7 +71,7 @@
                 aHtml.push('<li class="' + childrenTypeClass + '" draggable="true">');
                 aHtml.push('<div class="cm-tree__content" tabindex="0">');
                 if (isChildrenType && data['children'].length) {
-                    aHtml.push('<button class="cm-tree-fold-btn" type="button"><span class="blind">Collapse</span></button>');
+                    aHtml.push('<button class="cm-tree-fold-btn" type="button"><span class="blind">Expand/Collapse</span></button>');
                 }
                 aHtml.push('<span class="cm-tree__name">' + data['name'] + '</span></div>')
                 if (isChildrenType && data['children'].length) {
@@ -118,7 +120,7 @@
                 this.foldBtn.on(this.changeEvents('click'), $.proxy(this.onClickFold, this));
                 this.obj.on(this.changeEvents('changeName'), $.proxy(this.changeNameFunc, this));
                 this.obj.on(this.changeEvents('deleteItem'), $.proxy(this.deleteItemFunc, this));
-                this.obj.on(this.changeEvents('addFileAbove addFileBelow addFolderAbove addFolderBelow'), $.proxy(this.addElementFunc, this));
+                this.obj.on(this.changeEvents('addFileAbove addFileBelow addFolderAbove addFolderBelow addFileWithin addFolderWithin'), $.proxy(this.addElementFunc, this));
                 this.listItems.on(this.changeEvents('dragstart'), $.proxy(this.dragStartFunc, this));
                 this.listItems.on(this.changeEvents('dragover'), $.proxy(this.dragOverFunc, this));
                 this.listItems.on(this.changeEvents('dragleave'), $.proxy(this.dragLeaveFunc, this));
@@ -128,7 +130,7 @@
                 this.foldBtn.off(this.changeEvents('click'));
                 this.obj.off(this.changeEvents('changeName'));
                 this.obj.off(this.changeEvents('deleteItem'));
-                this.obj.off(this.changeEvents('addFileAbove addFileBelow addFolderAbove addFolderBelow'));
+                this.obj.off(this.changeEvents('addFileAbove addFileBelow addFolderAbove addFolderBelow addFileWithin addFolderWithin'));
                 this.listItems.off(this.changeEvents('dragstart'));
                 this.listItems.off(this.changeEvents('dragover'));
                 this.listItems.off(this.changeEvents('dragleave'));
@@ -163,8 +165,8 @@
                 targetChildren.hide();
             }
         },
-        findTargetArrayFunc : function (type) {
-            var target = this.selectedItem.closest('li'), 
+        findTargetArrayFunc : function (item) {
+            var target = item.closest('li'), 
                 targetData = target.attr('data-level'),
                 targetLevelArray = targetData.split('_'),
                 finalIndex = targetLevelArray.pop(),
@@ -173,16 +175,16 @@
                 var index = targetLevelArray[i];
                 targetArr = targetArr[index].children;                
             };
-            if (type === 'array') {
-                return targetArr;
-            } else if (type === 'targetIndex') {
-                return finalIndex;
-            }
+            return {
+                array : targetArr,
+                targetIndex : finalIndex
+            };
         },
         deleteItemFunc : function () {
             if (this.selectedItem == null) return;
-            var targetArr = this.findTargetArrayFunc('array'),
-                finalIndex = this.findTargetArrayFunc('targetIndex');
+            var targetArrInfo = this.findTargetArrayFunc(this.selectedItem),
+                targetArr = targetArrInfo['array'],
+                finalIndex = targetArrInfo['targetIndex'];
             targetArr.splice(finalIndex, 1);
             this.selectedItem.closest('li').remove();
             this.afterAjax();
@@ -190,18 +192,30 @@
         },
         addElementFunc : function (e) {
             if (this.selectedItem == null) return;
-            var isChildrenType =  (e.type === 'addFolderAbove' || e.type === 'addFolderBelow'),
+            var isChildrenType =  (e.type === 'addFolderAbove' || e.type === 'addFolderBelow' || e.type === 'addFolderWithin'),
                 newContent = !isChildrenType ? {"name" : "NEW FILE"}
                                              : {"name" : "NEW FOLDER", "children" : []}, 
                 newLayout = this.createNodesFunc([], [newContent]),
-                targetArr = this.findTargetArrayFunc('array'),
-                finalIndex = this.findTargetArrayFunc('targetIndex');
+                targetArrInfo = this.findTargetArrayFunc(this.selectedItem),
+                targetArr = targetArrInfo['array'],
+                finalIndex = targetArrInfo['targetIndex'],
+                newNode;
             if (e.type === 'addFileAbove' || e.type === 'addFolderAbove') {
                 targetArr.splice(finalIndex, 0, newContent);
-                var newNode = this.selectedItem.closest('li').before(newLayout.join('')).prev();
+                newNode = this.selectedItem.closest('li').before(newLayout.join('')).prev();
             } else if (e.type === 'addFileBelow' || e.type === 'addFolderBelow') {
                 targetArr.splice(finalIndex - 1, 0, newContent);
-                var newNode = this.selectedItem.closest('li').after(newLayout.join('').next());
+                newNode = this.selectedItem.closest('li').after(newLayout.join('')).next();
+            } else if (e.type === 'addFileWithin' || e.type === 'addFolderWithin') {
+                if (!this.selectedItem.closest('li').hasClass(this.opts.folderClass)) return;
+                if (!this.selectedItem.closest('li').find('.cm-tree__folder-children').length) {
+                    targetArr[finalIndex].children = [];
+                    this.selectedItem.closest('.cm-tree__content').append('<button class="cm-tree-fold-btn" type="button"><span class="blind">Expand/Collapse</span></button>');
+                    this.selectedItem.closest('li').append('<ul class="cm-tree__folder-children"></ul>');
+                    this.selectedItem.closest('li').find('.cm-tree__folder-children').prepend();
+                }
+                targetArr[finalIndex].children.splice(0, 0, newContent);
+                newNode = this.selectedItem.closest('li').find('.cm-tree__folder-children').prepend(newLayout.join('')).children().eq(0);
             }
             this.afterAjax();
             newNode.find(this.opts.contentArea).trigger(this.changeEvents('click'));
@@ -211,20 +225,21 @@
         changeNameFunc : function () {
             if (this.selectedItem == null) return;
             var target = this.selectedItem.find(this.opts.nameArea),
-                targetArr = this.findTargetArrayFunc('array'),
-                finalIndex = this.findTargetArrayFunc('targetIndex'),
+                targetArrInfo = this.findTargetArrayFunc(this.selectedItem),
+                targetArr = targetArrInfo['array'],
+                finalIndex = targetArrInfo['targetIndex'],
                 originalContent = '';
             target[0].contentEditable = true;
             target.on(this.changeEvents('focus'), function () {
-                originalContent = target.html();
+                originalContent = target.text();
             });
             target.on(this.changeEvents('focusout keydown'), function (e) {
-                var newContent = target.html();
+                var newContent = $.trim(target.text());
                 if (e.type === 'keydown' && e.keyCode === 13) {
                     target.trigger('focusout');
                 } else if (e.type === 'focusout') {
                     if (originalContent !== newContent) {
-                        if (newContent === '') {
+                        if (newContent == '') {
                             alert('File/folder name cannot be empty!');
                             target.html(originalContent);
                         } else {
@@ -241,7 +256,7 @@
             e.stopPropagation();
             var event = e.originalEvent;
             this.dragSrcEl = e.target;
-            event.dataTransfer.setData('text/html', e.target.outerHTML);
+            event.dataTransfer.setData('text', e.target.outerHTML);
             event.dataTransfer.effectAllowed = "move";
         },
         dragOverFunc : function (e) {
@@ -257,11 +272,23 @@
         dropFunc : function (e) {
             e.stopPropagation();
             if (this.dragSrcEl != e.currentTarget) {
-                var dropHTML = e.originalEvent.dataTransfer.getData('text/html');
+                var dropHTML = e.originalEvent.dataTransfer.getData('text'),
+                    srcTargetArrInfo = this.findTargetArrayFunc($(this.dragSrcEl)),
+                    srcTargetArr = srcTargetArrInfo['array'],
+                    srcTargetIndex = srcTargetArrInfo['targetIndex'],
+                    dropTargetArrInfo = this.findTargetArrayFunc($(e.currentTarget)),
+                    dropTargetArr = dropTargetArrInfo['array'],
+                    dropTargetIndex = dropTargetArrInfo['targetIndex'],
+                    srcContent = srcTargetArr.splice(srcTargetIndex, 1),
+                    isSrcSelected = ($(this.dragSrcEl).find(this.opts.contentArea).hasClass(this.opts.activeClass)) ? true : false;
+                dropTargetArr.splice(dropTargetIndex, 0, srcContent[0]);
                 $(this.dragSrcEl).remove();
                 e.currentTarget.insertAdjacentHTML('beforebegin', dropHTML);
-                
                 this.afterAjax();
+                console.log(this.dataArray);
+            }
+            if (isSrcSelected) {
+                this.selectedItem = $(e.currentTarget).prev().find(this.opts.contentArea);
             }
             e.currentTarget.classList.remove('is-over');
         }
